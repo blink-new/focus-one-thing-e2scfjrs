@@ -1,44 +1,24 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-
-export interface Task {
-  id: string
-  title: string
-  impact: number
-  urgency: number
-  effort: number
-  completed: boolean
-  date: string
-  duration: number
-  projectId: string | null
-}
-
-export interface Project {
-  id: string
-  name: string
-  color: string
-}
+import { Task, Project } from './types'
 
 interface FocusStore {
   tasks: Task[]
   projects: Project[]
-  addTask: (task: Task) => void
-  toggleTask: (taskId: string) => void
-  editTask: (taskId: string, updates: Partial<Task>) => void
-  deleteTask: (taskId: string) => void
-  addProject: (project: Project) => void
-  deleteProject: (projectId: string) => void
-}
-
-// Impact score calculation functions
-export const calculateImpactScore = (task: Task): number => {
-  return (task.impact * task.urgency) / task.effort
-}
-
-export const calculatePriority = (task: Task): number => {
-  const score = calculateImpactScore(task)
-  return Math.round(score * 100) / 100 // Round to 2 decimal places
+  currentTask: Task | null
+  isTimerRunning: boolean
+  remainingTime: number
+  addTask: (task: Omit<Task, 'id' | 'completed' | 'completedAt' | 'reflection'>) => void
+  deleteTask: (id: string) => void
+  completeTask: (id: string, reflection: string) => void
+  setCurrentTask: (task: Task | null) => void
+  startTimer: () => void
+  stopTimer: () => void
+  setRemainingTime: (time: number) => void
+  reorderTasks: (newOrder: string[]) => void
+  addProject: (project: Omit<Project, 'id'>) => void
+  deleteProject: (id: string) => void
 }
 
 export const useFocusStore = create<FocusStore>()(
@@ -46,42 +26,74 @@ export const useFocusStore = create<FocusStore>()(
     (set) => ({
       tasks: [],
       projects: [],
+      currentTask: null,
+      isTimerRunning: false,
+      remainingTime: 25 * 60, // 25 minutes in seconds
+
       addTask: (task) =>
         set((state) => ({
-          tasks: [...state.tasks, task],
+          tasks: [
+            {
+              ...task,
+              id: crypto.randomUUID(),
+              completed: false,
+              completedAt: null,
+              reflection: '',
+            },
+            ...state.tasks,
+          ],
         })),
-      toggleTask: (taskId) =>
+
+      deleteTask: (id) =>
+        set((state) => ({
+          tasks: state.tasks.filter((task) => task.id !== id),
+        })),
+
+      completeTask: (id, reflection) =>
         set((state) => ({
           tasks: state.tasks.map((task) =>
-            task.id === taskId
-              ? { ...task, completed: !task.completed }
+            task.id === id
+              ? {
+                  ...task,
+                  completed: true,
+                  completedAt: new Date().toISOString(),
+                  reflection,
+                }
               : task
           ),
+          currentTask: null,
         })),
-      editTask: (taskId, updates) =>
+
+      setCurrentTask: (task) =>
+        set({
+          currentTask: task,
+          isTimerRunning: false,
+          remainingTime: 25 * 60,
+        }),
+
+      startTimer: () => set({ isTimerRunning: true }),
+      stopTimer: () => set({ isTimerRunning: false }),
+      setRemainingTime: (time) => set({ remainingTime: time }),
+
+      reorderTasks: (newOrder) =>
         set((state) => ({
-          tasks: state.tasks.map((task) =>
-            task.id === taskId
-              ? { ...task, ...updates }
-              : task
-          ),
+          tasks: newOrder
+            .map((id) => state.tasks.find((task) => task.id === id))
+            .filter((task): task is Task => task !== undefined),
         })),
-      deleteTask: (taskId) =>
-        set((state) => ({
-          tasks: state.tasks.filter((task) => task.id !== taskId),
-        })),
+
       addProject: (project) =>
         set((state) => ({
-          projects: [...state.projects, project],
+          projects: [
+            ...state.projects,
+            { ...project, id: crypto.randomUUID() },
+          ],
         })),
-      deleteProject: (projectId) =>
+
+      deleteProject: (id) =>
         set((state) => ({
-          projects: state.projects.filter((project) => project.id !== projectId),
-          tasks: state.tasks.map((task) =>
-            task.projectId === projectId
-              ? { ...task, projectId: null }
-              : task
-          ),
+          projects: state.projects.filter((project) => project.id !== id),
+          tasks: state.tasks.filter((task) => task.projectId !== id),
         })),
     }),
     {
@@ -89,3 +101,7 @@ export const useFocusStore = create<FocusStore>()(
     }
   )
 )
+
+export function calculateImpactScore(task: Task): number {
+  return (task.impact * 0.7 + task.urgency * 0.3)
+}
