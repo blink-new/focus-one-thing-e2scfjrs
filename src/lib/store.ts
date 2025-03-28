@@ -10,31 +10,52 @@ export interface Task {
   effort: number
   completed: boolean
   date: string
+  projectId: string | null
   reflection?: string
   duration?: number
   order?: number
 }
 
+export interface Project {
+  id: string
+  name: string
+  color: string
+  isDefault?: boolean
+}
+
 interface FocusStore {
   tasks: Task[]
+  projects: Project[]
   currentTask: Task | null
   isTimerRunning: boolean
   remainingTime: number
+  
   addTask: (task: Task) => void
   updateTask: (id: string, updates: Partial<Task>) => void
   deleteTask: (id: string) => void
   reorderTasks: (taskId: string, newOrder: number) => void
   setCurrentTask: (task: Task | null) => void
   completeTask: (id: string, reflection: string) => void
+  
+  addProject: (project: Project) => void
+  updateProject: (id: string, updates: Partial<Project>) => void
+  deleteProject: (id: string) => void
+  
   startTimer: () => void
   stopTimer: () => void
   setRemainingTime: (time: number) => void
 }
 
+const DEFAULT_PROJECTS: Project[] = [
+  { id: 'work', name: 'Work', color: '#0ea5e9', isDefault: true },
+  { id: 'personal', name: 'Personal', color: '#8b5cf6', isDefault: true },
+]
+
 export const useFocusStore = create<FocusStore>()(
   persist(
     (set) => ({
       tasks: [],
+      projects: DEFAULT_PROJECTS,
       currentTask: null,
       isTimerRunning: false,
       remainingTime: 25 * 60,
@@ -65,6 +86,23 @@ export const useFocusStore = create<FocusStore>()(
           tasks: tasks.map((t, i) => ({ ...t, order: i })),
         }
       }),
+
+      addProject: (project) => set((state) => ({
+        projects: [...state.projects, project],
+      })),
+
+      updateProject: (id, updates) => set((state) => ({
+        projects: state.projects.map((project) =>
+          project.id === id ? { ...project, ...updates } : project
+        ),
+      })),
+
+      deleteProject: (id) => set((state) => ({
+        projects: state.projects.filter((p) => !p.isDefault && p.id !== id),
+        tasks: state.tasks.map((task) =>
+          task.projectId === id ? { ...task, projectId: null } : task
+        ),
+      })),
 
       setCurrentTask: (task) => set({ currentTask: task }),
       

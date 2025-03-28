@@ -5,13 +5,22 @@ import { useFocusStore } from '../lib/store'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Slider } from './ui/slider'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select"
 
-export function TaskInput() {
+export function TaskInput({ defaultProjectId = null }: { defaultProjectId?: string | null }) {
   const [title, setTitle] = useState('')
   const [impact, setImpact] = useState(5)
   const [urgency, setUrgency] = useState(5)
   const [effort, setEffort] = useState(5)
-  const addTask = useFocusStore((state) => state.addTask)
+  const [projectId, setProjectId] = useState(defaultProjectId)
+  
+  const { addTask, projects } = useFocusStore()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,6 +35,7 @@ export function TaskInput() {
       completed: false,
       date: new Date().toISOString(),
       duration: 25 * 60,
+      projectId,
     })
 
     setTitle('')
@@ -48,7 +58,27 @@ export function TaskInput() {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">Project</label>
+          <Select
+            value={projectId || ""}
+            onValueChange={(value) => setProjectId(value || null)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a project" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Inbox</SelectItem>
+              {projects.map((project) => (
+                <SelectItem key={project.id} value={project.id}>
+                  {project.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700 flex justify-between">
             Impact <span className="text-blue-600">{impact}/10</span>
@@ -60,7 +90,6 @@ export function TaskInput() {
             step={1}
             className="w-full"
           />
-          <p className="text-xs text-gray-500">How impactful is this task?</p>
         </div>
 
         <div className="space-y-2">
@@ -74,7 +103,6 @@ export function TaskInput() {
             step={1}
             className="w-full"
           />
-          <p className="text-xs text-gray-500">How urgent is it?</p>
         </div>
 
         <div className="space-y-2">
@@ -88,7 +116,6 @@ export function TaskInput() {
             step={1}
             className="w-full"
           />
-          <p className="text-xs text-gray-500">How much effort will it take?</p>
         </div>
       </div>
 
