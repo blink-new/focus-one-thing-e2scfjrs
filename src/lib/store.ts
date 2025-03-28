@@ -18,14 +18,20 @@ interface FocusStore {
   setRemainingTime: (time: number) => void
   reorderTasks: (newOrder: string[]) => void
   addProject: (project: Omit<Project, 'id'>) => void
+  editProject: (id: string, updates: Partial<Omit<Project, 'id'>>) => void
   deleteProject: (id: string) => void
 }
+
+const DEFAULT_PROJECTS: Project[] = [
+  { id: 'work', name: 'Work', color: '#0ea5e9' },
+  { id: 'personal', name: 'Personal', color: '#8b5cf6' },
+]
 
 export const useFocusStore = create<FocusStore>()(
   persist(
     (set) => ({
       tasks: [],
-      projects: [],
+      projects: DEFAULT_PROJECTS,
       currentTask: null,
       isTimerRunning: false,
       remainingTime: 25 * 60, // 25 minutes in seconds
@@ -88,6 +94,15 @@ export const useFocusStore = create<FocusStore>()(
             ...state.projects,
             { ...project, id: crypto.randomUUID() },
           ],
+        })),
+
+      editProject: (id, updates) =>
+        set((state) => ({
+          projects: state.projects.map((project) =>
+            project.id === id
+              ? { ...project, ...updates }
+              : project
+          ),
         })),
 
       deleteProject: (id) =>

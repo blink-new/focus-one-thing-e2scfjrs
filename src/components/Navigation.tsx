@@ -3,88 +3,57 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { 
   Inbox, 
-  Briefcase, 
-  User, 
-  FolderPlus, 
-  Plus,
   Settings,
-  X
+  Plus,
+  X,
+  MoreVertical
 } from 'lucide-react'
 import { useFocusStore, type Project } from '../lib/store'
 import { Button } from './ui/button'
-import { Input } from './ui/input'
 import { cn } from '../lib/utils'
-
-function ProjectForm({ onClose }: { onClose: () => void }) {
-  const [name, setName] = useState('')
-  const [color, setColor] = useState('#0ea5e9')
-  const addProject = useFocusStore((state) => state.addProject)
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!name.trim()) return
-
-    addProject({
-      id: Date.now().toString(),
-      name: name.trim(),
-      color,
-    })
-    onClose()
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="p-4 bg-white rounded-lg shadow-lg">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="font-medium">New Project</h3>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-      <div className="space-y-4">
-        <div>
-          <Input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Project name"
-            className="w-full"
-          />
-        </div>
-        <div>
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            className="w-full h-8 rounded cursor-pointer"
-          />
-        </div>
-        <Button type="submit" className="w-full">
-          Create Project
-        </Button>
-      </div>
-    </form>
-  )
-}
+import { ProjectDialog } from './ProjectDialog'
 
 function ProjectItem({ project }: { project: Project }) {
+  const [showOptions, setShowOptions] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
   const location = useLocation()
   const isActive = location.pathname === `/project/${project.id}`
 
   return (
-    <Link
-      to={`/project/${project.id}`}
-      className={cn(
-        "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
-        isActive 
-          ? "bg-gray-100 text-gray-900" 
-          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+    <>
+      <div className="group relative flex items-center">
+        <Link
+          to={`/project/${project.id}`}
+          className={cn(
+            "flex-1 flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
+            isActive 
+              ? "bg-gray-100 text-gray-900" 
+              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+          )}
+        >
+          <div 
+            className="w-2 h-2 rounded-full" 
+            style={{ backgroundColor: project.color }} 
+          />
+          <span>{project.name}</span>
+        </Link>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 opacity-0 group-hover:opacity-100 absolute right-1"
+          onClick={() => setShowEditDialog(true)}
+        >
+          <MoreVertical className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {showEditDialog && (
+        <ProjectDialog 
+          project={project} 
+          onClose={() => setShowEditDialog(false)} 
+        />
       )}
-    >
-      <div 
-        className="w-2 h-2 rounded-full" 
-        style={{ backgroundColor: project.color }} 
-      />
-      <span>{project.name}</span>
-    </Link>
+    </>
   )
 }
 
@@ -131,9 +100,7 @@ export function Navigation() {
           </div>
 
           {showNewProject && (
-            <div className="mt-2">
-              <ProjectForm onClose={() => setShowNewProject(false)} />
-            </div>
+            <ProjectDialog onClose={() => setShowNewProject(false)} />
           )}
         </div>
 
