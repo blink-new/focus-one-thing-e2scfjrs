@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useEffect } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { useFocusStore, type Theme } from '../lib/store'
 
 type ThemeContextType = {
@@ -8,7 +8,7 @@ type ThemeContextType = {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: 'light',
+  theme: 'system',
   setTheme: () => null,
 })
 
@@ -22,30 +22,35 @@ export function ThemeProvider({
   children: React.ReactNode
 }) {
   const { settings, updateSettings } = useFocusStore()
+  const [systemTheme, setSystemTheme] = useState<'dark' | 'light'>(
+    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  )
 
   // Update the theme based on system preference
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     
-    const updateTheme = () => {
-      if (settings.appearance.theme === 'system') {
-        document.documentElement.classList.toggle('dark', mediaQuery.matches)
-      }
+    const updateSystemTheme = (e: MediaQueryListEvent | MediaQueryList) => {
+      const newTheme = e.matches ? 'dark' : 'light'
+      setSystemTheme(newTheme)
     }
 
-    mediaQuery.addEventListener('change', updateTheme)
-    return () => mediaQuery.removeEventListener('change', updateTheme)
-  }, [settings.appearance.theme])
+    // Initial check
+    updateSystemTheme(mediaQuery)
 
-  // Update theme when settings change
+    // Listen for changes
+    mediaQuery.addEventListener('change', updateSystemTheme)
+    return () => mediaQuery.removeEventListener('change', updateSystemTheme)
+  }, [])
+
+  // Apply theme changes
   useEffect(() => {
-    const isDark = 
-      settings.appearance.theme === 'dark' ||
-      (settings.appearance.theme === 'system' && 
-       window.matchMedia('(prefers-color-scheme: dark)').matches)
+    const theme = settings.appearance.theme
+    const isDark = theme === 'dark' || (theme === 'system' && systemTheme === 'dark')
     
-    document.documentElement.classList.toggle('dark', isDark)
-  }, [settings.appearance.theme])
+    document.documentElement.classList.remove('light', 'dark')
+    document.documentElement.classList.add(isDark ? 'dark' : 'light')
+  }, [settings.appearance.theme, systemTheme])
 
   const setTheme = (theme: Theme) => {
     updateSettings({
