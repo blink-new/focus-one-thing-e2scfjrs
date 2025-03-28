@@ -39,38 +39,28 @@ function InboxView() {
 }
 
 function App() {
-  const currentTask = useFocusStore((state) => state.currentTask)
-
   return (
     <ThemeProvider>
-      {currentTask ? (
+      <Router>
         <div className="min-h-screen bg-background text-foreground">
-          <div className="container mx-auto px-4 py-8 max-w-3xl">
-            <CurrentTask />
+          <Navigation />
+          <div className="lg:pl-64">
+            <div className="container mx-auto px-4 lg:px-8 py-8 max-w-4xl">
+              <Routes>
+                <Route path="/" element={<InboxView />} />
+                <Route path="/focus" element={<CurrentTask />} />
+                <Route path="/project/:projectId" element={<ProjectView />} />
+                <Route path="/timer" element={<Timer />} />
+                <Route path="/settings" element={<Settings />} />
+              </Routes>
+              <div className="mt-12">
+                <TaskHistory />
+              </div>
+            </div>
           </div>
           <Toaster position="top-center" theme="system" />
         </div>
-      ) : (
-        <Router>
-          <div className="min-h-screen bg-background text-foreground">
-            <Navigation />
-            <div className="lg:pl-64">
-              <div className="container mx-auto px-4 lg:px-8 py-8 max-w-4xl">
-                <Routes>
-                  <Route path="/" element={<InboxView />} />
-                  <Route path="/project/:projectId" element={<ProjectView />} />
-                  <Route path="/timer" element={<Timer />} />
-                  <Route path="/settings" element={<Settings />} />
-                </Routes>
-                <div className="mt-12">
-                  <TaskHistory />
-                </div>
-              </div>
-            </div>
-            <Toaster position="top-center" theme="system" />
-          </div>
-        </Router>
-      )}
+      </Router>
     </ThemeProvider>
   )
 }

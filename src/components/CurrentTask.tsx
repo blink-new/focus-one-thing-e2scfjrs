@@ -1,28 +1,10 @@
 
-import { useFocusStore, calculateImpactScore, calculatePriority, Task } from '../lib/store'
-import { useEffect, useState } from 'react'
+import { useFocusStore, calculateImpactScore, calculatePriority } from '../lib/store'
 
 export function CurrentTask() {
   const tasks = useFocusStore(state => state.tasks.filter(t => !t.completed))
-  const [currentTask, setCurrentTask] = useState<Task | null>(null)
-
-  useEffect(() => {
-    if (tasks.length === 0) {
-      setCurrentTask(null)
-      return
-    }
-
-    // Sort tasks by priority score
-    const sortedTasks = [...tasks].sort((a, b) => {
-      const priorityA = calculatePriority(a)
-      const priorityB = calculatePriority(b)
-      return priorityB - priorityA
-    })
-
-    setCurrentTask(sortedTasks[0])
-  }, [tasks])
-
-  if (!currentTask) {
+  
+  if (tasks.length === 0) {
     return (
       <div className="p-6 text-center dark:bg-zinc-900/30 bg-zinc-50/50 rounded-lg">
         <p className="dark:text-zinc-400 text-zinc-600">
@@ -32,6 +14,14 @@ export function CurrentTask() {
     )
   }
 
+  // Sort tasks by priority score
+  const sortedTasks = [...tasks].sort((a, b) => {
+    const priorityA = calculatePriority(a)
+    const priorityB = calculatePriority(b)
+    return priorityB - priorityA
+  })
+
+  const currentTask = sortedTasks[0]
   const impactScore = calculateImpactScore(currentTask)
   const priorityScore = calculatePriority(currentTask)
 

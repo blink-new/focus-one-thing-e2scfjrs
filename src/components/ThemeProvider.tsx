@@ -21,7 +21,8 @@ export function ThemeProvider({
 }: {
   children: React.ReactNode
 }) {
-  const { settings, updateSettings } = useFocusStore()
+  const settings = useFocusStore(state => state.settings)
+  const updateSettings = useFocusStore(state => state.updateSettings)
   const [systemTheme, setSystemTheme] = useState<'dark' | 'light'>(
     window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   )
@@ -47,30 +48,39 @@ export function ThemeProvider({
   useEffect(() => {
     if (!settings?.appearance?.theme) {
       updateSettings({
-        appearance: { theme: 'system' }
+        appearance: { 
+          theme: 'system',
+        },
+        ...settings
       })
     }
-  }, [settings, updateSettings])
+  }, [])
 
   // Apply theme changes
   useEffect(() => {
     const theme = settings?.appearance?.theme || 'system'
     const isDark = theme === 'dark' || (theme === 'system' && systemTheme === 'dark')
     
-    document.documentElement.classList.remove('light', 'dark')
-    document.documentElement.classList.add(isDark ? 'dark' : 'light')
+    document.documentElement.classList.toggle('dark', isDark)
+    document.documentElement.classList.toggle('light', !isDark)
   }, [settings?.appearance?.theme, systemTheme])
 
   const setTheme = (theme: Theme) => {
     updateSettings({
-      appearance: { theme }
+      ...settings,
+      appearance: { 
+        ...settings?.appearance,
+        theme 
+      }
     })
   }
+
+  const currentTheme = settings?.appearance?.theme || 'system'
 
   return (
     <ThemeContext.Provider
       value={{
-        theme: settings?.appearance?.theme || 'system',
+        theme: currentTheme,
         setTheme,
       }}
     >
