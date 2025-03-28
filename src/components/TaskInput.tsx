@@ -44,29 +44,29 @@ export function TaskInput() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 dark:bg-zinc-900 bg-white rounded-lg shadow-sm">
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 dark:bg-zinc-950/50 bg-white rounded-lg shadow-sm">
       <div className="space-y-2">
-        <h3 className="font-medium text-sm dark:text-zinc-200">What needs to be done?</h3>
+        <h3 className="font-medium text-sm dark:text-zinc-400">What needs to be done?</h3>
         <Input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter a new task..."
-          className="dark:bg-zinc-800 dark:text-zinc-100"
+          className="dark:bg-zinc-950 dark:text-zinc-300 dark:placeholder:text-zinc-600 dark:border-zinc-800"
         />
       </div>
 
       <div className="space-y-4">
         <div className="grid grid-cols-4 gap-4 items-center">
           <div className="space-y-2">
-            <label className="text-sm font-medium dark:text-zinc-300">Project</label>
+            <label className="text-sm font-medium dark:text-zinc-400">Project</label>
             <Select value={project} onValueChange={setProject}>
-              <SelectTrigger className="dark:bg-zinc-800">
+              <SelectTrigger className="dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-300">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="dark:bg-zinc-950 dark:border-zinc-800">
                 {projects.map(p => (
-                  <SelectItem key={p.id} value={p.id}>
+                  <SelectItem key={p.id} value={p.id} className="dark:text-zinc-300">
                     {p.name}
                   </SelectItem>
                 ))}
@@ -75,7 +75,7 @@ export function TaskInput() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium dark:text-zinc-300">
+            <label className="text-sm font-medium dark:text-zinc-400">
               Impact {impact}/10
             </label>
             <Slider
@@ -88,7 +88,7 @@ export function TaskInput() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium dark:text-zinc-300">
+            <label className="text-sm font-medium dark:text-zinc-400">
               Urgency {urgency}/10
             </label>
             <Slider
@@ -101,7 +101,7 @@ export function TaskInput() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium dark:text-zinc-300">
+            <label className="text-sm font-medium dark:text-zinc-400">
               Effort {effort}/10
             </label>
             <Slider
@@ -116,7 +116,7 @@ export function TaskInput() {
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit">Add Task</Button>
+        <Button type="submit" className="dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">Add Task</Button>
       </div>
     </form>
   )

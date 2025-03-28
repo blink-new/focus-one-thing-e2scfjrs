@@ -15,8 +15,8 @@ export function TaskList({ filter }: TaskListProps) {
 
   if (tasks.length === 0) {
     return (
-      <div className="p-4 text-center dark:bg-zinc-900 bg-white rounded-lg">
-        <p className="text-zinc-500 dark:text-zinc-400">No tasks yet</p>
+      <div className="p-4 text-center dark:bg-zinc-950/50 bg-white rounded-lg">
+        <p className="text-zinc-500 dark:text-zinc-600">No tasks yet</p>
       </div>
     )
   }
