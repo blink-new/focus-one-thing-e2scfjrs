@@ -3,12 +3,40 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { Task, Project } from './types'
 
+interface Settings {
+  timer: {
+    focusDuration: number
+    shortBreakDuration: number
+    longBreakDuration: number
+    longBreakInterval: number
+    soundEnabled: boolean
+  }
+  appearance: {
+    theme: 'light' | 'dark' | 'system'
+  }
+  tasks: {
+    defaultProjectId: string | null
+    autoArchiveDays: number
+    showCompleted: boolean
+  }
+  notifications: {
+    timerEnabled: boolean
+    taskRemindersEnabled: boolean
+  }
+}
+
 interface FocusStore {
   tasks: Task[]
   projects: Project[]
   currentTask: Task | null
   isTimerRunning: boolean
   remainingTime: number
+  settings: Settings
+  
+  // Settings actions
+  updateSettings: (settings: Partial<Settings>) => void
+  
+  // Existing actions
   addTask: (task: Omit<Task, 'id' | 'completed' | 'completedAt' | 'reflection'>) => void
   deleteTask: (id: string) => void
   completeTask: (id: string, reflection: string) => void
@@ -20,6 +48,28 @@ interface FocusStore {
   addProject: (project: Omit<Project, 'id'>) => void
   editProject: (id: string, updates: Partial<Omit<Project, 'id'>>) => void
   deleteProject: (id: string) => void
+}
+
+const DEFAULT_SETTINGS: Settings = {
+  timer: {
+    focusDuration: 25 * 60,
+    shortBreakDuration: 5 * 60,
+    longBreakDuration: 15 * 60,
+    longBreakInterval: 4,
+    soundEnabled: true,
+  },
+  appearance: {
+    theme: 'system',
+  },
+  tasks: {
+    defaultProjectId: null,
+    autoArchiveDays: 30,
+    showCompleted: true,
+  },
+  notifications: {
+    timerEnabled: true,
+    taskRemindersEnabled: true,
+  },
 }
 
 const DEFAULT_PROJECTS: Project[] = [
@@ -34,7 +84,16 @@ export const useFocusStore = create<FocusStore>()(
       projects: DEFAULT_PROJECTS,
       currentTask: null,
       isTimerRunning: false,
-      remainingTime: 25 * 60, // 25 minutes in seconds
+      remainingTime: DEFAULT_SETTINGS.timer.focusDuration,
+      settings: DEFAULT_SETTINGS,
+
+      updateSettings: (newSettings) =>
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            ...newSettings,
+          },
+        })),
 
       addTask: (task) =>
         set((state) => ({
@@ -71,11 +130,11 @@ export const useFocusStore = create<FocusStore>()(
         })),
 
       setCurrentTask: (task) =>
-        set({
+        set((state) => ({
           currentTask: task,
           isTimerRunning: false,
-          remainingTime: 25 * 60,
-        }),
+          remainingTime: state.settings.timer.focusDuration,
+        })),
 
       startTimer: () => set({ isTimerRunning: true }),
       stopTimer: () => set({ isTimerRunning: false }),

@@ -8,6 +8,7 @@ import { SortableTaskList } from './components/SortableTaskList'
 import { TaskHistory } from './components/TaskHistory'
 import { ProjectView } from './components/ProjectView'
 import { Timer } from './components/Timer'
+import { Settings } from './components/Settings'
 import { useFocusStore } from './lib/store'
 
 function InboxView() {
@@ -60,6 +61,7 @@ function App() {
               <Route path="/" element={<InboxView />} />
               <Route path="/project/:projectId" element={<ProjectView />} />
               <Route path="/timer" element={<Timer />} />
+              <Route path="/settings" element={<Settings />} />
             </Routes>
             <div className="mt-12">
               <TaskHistory />
