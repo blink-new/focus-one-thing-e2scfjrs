@@ -13,12 +13,20 @@ export function Timer() {
     currentTask,
     isTimerRunning,
     remainingTime,
+    settings,
     startTimer,
     stopTimer,
     setRemainingTime,
   } = useFocusStore()
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  // Initialize timer with focus duration from settings
+  useEffect(() => {
+    if (remainingTime === 0) {
+      setRemainingTime(settings.timer.focusDuration)
+    }
+  }, [])
 
   useEffect(() => {
     audioRef.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
@@ -46,7 +54,7 @@ export function Timer() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
-  const progress = ((25 * 60 - remainingTime) / (25 * 60)) * 100
+  const progress = ((settings.timer.focusDuration - remainingTime) / settings.timer.focusDuration) * 100
 
   return (
     <div className="space-y-8">
@@ -106,7 +114,7 @@ export function Timer() {
             size="lg"
             onClick={() => {
               stopTimer()
-              setRemainingTime(25 * 60)
+              setRemainingTime(settings.timer.focusDuration)
               toast.info('Timer reset')
             }}
             className="w-32"

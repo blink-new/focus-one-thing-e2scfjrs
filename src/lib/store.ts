@@ -50,6 +50,10 @@ interface FocusState {
   projects: Project[]
   currentTask: Task | null
   settings: Settings
+  // Timer state
+  isTimerRunning: boolean
+  remainingTime: number
+  // Actions
   addTask: (task: Omit<Task, 'id' | 'completed'>) => void
   toggleTaskComplete: (id: string) => void
   deleteTask: (id: string) => void
@@ -60,6 +64,10 @@ interface FocusState {
   setCurrentTask: (task: Task | null) => void
   reorderTasks: (taskIds: string[]) => void
   updateSettings: (updates: Partial<Settings>) => void
+  // Timer actions
+  startTimer: () => void
+  stopTimer: () => void
+  setRemainingTime: (time: number) => void
 }
 
 export const calculateImpactScore = (task: Task) => {
@@ -80,6 +88,9 @@ export const useFocusStore = create<FocusState>()(
       tasks: [],
       projects: [],
       currentTask: null,
+      // Timer state initialization
+      isTimerRunning: false,
+      remainingTime: 25 * 60, // 25 minutes in seconds
       settings: {
         appearance: {
           theme: 'system' as Theme
@@ -170,6 +181,10 @@ export const useFocusStore = create<FocusState>()(
             ...updates,
           },
         })),
+      // Timer actions
+      startTimer: () => set({ isTimerRunning: true }),
+      stopTimer: () => set({ isTimerRunning: false }),
+      setRemainingTime: (time: number) => set({ remainingTime: time }),
     }),
     {
       name: 'focus-store',
