@@ -30,6 +30,33 @@ interface FocusState {
   deleteProject: (projectId: string) => void
 }
 
+// Score calculation functions
+export const calculateImpactScore = (task: Task): number => {
+  // Impact score formula: (Impact * Urgency) / Effort
+  return (task.impact * task.urgency) / (task.effort || 1)
+}
+
+export const calculatePriority = (task: Task): number => {
+  // Priority score includes time sensitivity if date is present
+  const baseScore = calculateImpactScore(task)
+  
+  if (!task.date) {
+    return baseScore
+  }
+
+  const dueDate = new Date(task.date)
+  const now = new Date()
+  const daysUntilDue = Math.max(0, Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+  
+  // Increase priority for tasks due soon
+  const timeMultiplier = daysUntilDue <= 1 ? 2 : // Due within 24 hours
+                        daysUntilDue <= 3 ? 1.5 : // Due within 3 days
+                        daysUntilDue <= 7 ? 1.2 : // Due within a week
+                        1 // More than a week away
+
+  return baseScore * timeMultiplier
+}
+
 export const useFocusStore = create<FocusState>()(
   persist(
     (set) => ({
