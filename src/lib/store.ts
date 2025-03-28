@@ -6,19 +6,25 @@ export interface Task {
   id: string
   title: string
   impact: number
+  urgency: number
+  effort: number
   completed: boolean
   date: string
   reflection?: string
   duration?: number
+  order?: number
 }
 
 interface FocusStore {
-  currentTask: Task | null
   tasks: Task[]
+  currentTask: Task | null
   isTimerRunning: boolean
   remainingTime: number
-  setCurrentTask: (task: Task | null) => void
   addTask: (task: Task) => void
+  updateTask: (id: string, updates: Partial<Task>) => void
+  deleteTask: (id: string) => void
+  reorderTasks: (taskId: string, newOrder: number) => void
+  setCurrentTask: (task: Task | null) => void
   completeTask: (id: string, reflection: string) => void
   startTimer: () => void
   stopTimer: () => void
@@ -28,18 +34,40 @@ interface FocusStore {
 export const useFocusStore = create<FocusStore>()(
   persist(
     (set) => ({
-      currentTask: null,
       tasks: [],
+      currentTask: null,
       isTimerRunning: false,
-      remainingTime: 25 * 60, // 25 minutes in seconds
+      remainingTime: 25 * 60,
+
+      addTask: (task) => set((state) => ({
+        tasks: [...state.tasks, { ...task, order: state.tasks.length }],
+      })),
+
+      updateTask: (id, updates) => set((state) => ({
+        tasks: state.tasks.map((task) =>
+          task.id === id ? { ...task, ...updates } : task
+        ),
+      })),
+
+      deleteTask: (id) => set((state) => ({
+        tasks: state.tasks.filter((task) => task.id !== id),
+      })),
+
+      reorderTasks: (taskId, newOrder) => set((state) => {
+        const tasks = [...state.tasks]
+        const taskIndex = tasks.findIndex((t) => t.id === taskId)
+        const task = tasks[taskIndex]
+        
+        tasks.splice(taskIndex, 1)
+        tasks.splice(newOrder, 0, task)
+        
+        return {
+          tasks: tasks.map((t, i) => ({ ...t, order: i })),
+        }
+      }),
 
       setCurrentTask: (task) => set({ currentTask: task }),
       
-      addTask: (task) => set((state) => ({
-        tasks: [task, ...state.tasks],
-        currentTask: task,
-      })),
-
       completeTask: (id, reflection) => set((state) => ({
         tasks: state.tasks.map((task) =>
           task.id === id
@@ -58,3 +86,7 @@ export const useFocusStore = create<FocusStore>()(
     }
   )
 )
+
+export const calculateImpactScore = (task: Task) => {
+  return (task.impact * 0.5) + (task.urgency * 0.3) + ((10 - task.effort) * 0.2)
+}
