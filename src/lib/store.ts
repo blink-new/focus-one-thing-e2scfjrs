@@ -27,6 +27,22 @@ interface Settings {
   appearance: {
     theme: Theme
   }
+  timer: {
+    focusDuration: number
+    shortBreakDuration: number
+    longBreakDuration: number
+    longBreakInterval: number
+    soundEnabled: boolean
+  }
+  tasks: {
+    defaultProjectId: string | null
+    autoArchiveDays: number
+    showCompleted: boolean
+  }
+  notifications: {
+    timerEnabled: boolean
+    taskRemindersEnabled: boolean
+  }
 }
 
 interface FocusState {
@@ -67,6 +83,22 @@ export const useFocusStore = create<FocusState>()(
       settings: {
         appearance: {
           theme: 'system' as Theme
+        },
+        timer: {
+          focusDuration: 25 * 60, // 25 minutes in seconds
+          shortBreakDuration: 5 * 60, // 5 minutes in seconds
+          longBreakDuration: 15 * 60, // 15 minutes in seconds
+          longBreakInterval: 4, // Every 4 focus sessions
+          soundEnabled: true
+        },
+        tasks: {
+          defaultProjectId: null,
+          autoArchiveDays: 30,
+          showCompleted: true
+        },
+        notifications: {
+          timerEnabled: true,
+          taskRemindersEnabled: true
         }
       },
       addTask: (task) =>

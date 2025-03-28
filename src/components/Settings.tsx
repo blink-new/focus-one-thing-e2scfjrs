@@ -47,11 +47,40 @@ export function Settings() {
     setMounted(true)
   }, [])
 
+  // Initialize settings if they don't exist
+  useEffect(() => {
+    if (!settings?.timer || !settings?.tasks || !settings?.notifications) {
+      updateSettings({
+        timer: {
+          focusDuration: 25 * 60,
+          shortBreakDuration: 5 * 60,
+          longBreakDuration: 15 * 60,
+          longBreakInterval: 4,
+          soundEnabled: true
+        },
+        tasks: {
+          defaultProjectId: null,
+          autoArchiveDays: 30,
+          showCompleted: true
+        },
+        notifications: {
+          timerEnabled: true,
+          taskRemindersEnabled: true
+        }
+      })
+    }
+  }, [settings, updateSettings])
+
   if (!mounted) {
     return null
   }
 
   const formatMinutes = (seconds: number) => Math.floor(seconds / 60)
+
+  // Ensure settings are initialized before rendering
+  if (!settings?.timer || !settings?.tasks || !settings?.notifications) {
+    return null
+  }
 
   return (
     <div className="space-y-8">
