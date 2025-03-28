@@ -3,8 +3,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { Task, Project } from '../types'
 
-// Impact score calculation
-export const calculateImpactScore = (task: Task): number => {
+// Priority calculation
+export const calculatePriority = (task: Task): number => {
   const urgencyWeight = 0.4
   const importanceWeight = 0.6
   
