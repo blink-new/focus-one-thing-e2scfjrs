@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from './ui/dialog'
+} from '../components/ui/dialog'
 import { Settings as SettingsIcon } from 'lucide-react'
 import { useFocusStore } from '../lib/store'
 import {
