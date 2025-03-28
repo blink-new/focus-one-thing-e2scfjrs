@@ -7,15 +7,16 @@ import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Select } from './ui/select'
 import { cn } from '../lib/utils'
+import { useTheme } from './ThemeProvider'
 
 function SettingSection({ title, children }: { title: string, children: React.ReactNode }) {
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-lg p-6 shadow-sm border space-y-4"
+      className="bg-card rounded-lg p-6 shadow-sm border space-y-4"
     >
-      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+      <h2 className="text-lg font-semibold">{title}</h2>
       {children}
     </motion.section>
   )
@@ -30,7 +31,7 @@ function SettingRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <span className="text-sm font-medium text-gray-700">{label}</span>
+      <span className="text-sm font-medium text-muted-foreground">{label}</span>
       {children}
     </div>
   )
@@ -38,6 +39,7 @@ function SettingRow({
 
 export function Settings() {
   const { settings, updateSettings, projects } = useFocusStore()
+  const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   // Handle hydration mismatch for theme
@@ -54,15 +56,51 @@ export function Settings() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold mb-2">
           Settings
         </h1>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           Customize your focus experience.
         </p>
       </div>
 
       <div className="space-y-6">
+        <SettingSection title="Appearance">
+          <div className="space-y-4">
+            <SettingRow label="Theme">
+              <div className="flex space-x-2">
+                <Button
+                  variant={theme === 'light' ? 'default' : 'outline'}
+                  onClick={() => setTheme('light')}
+                  className="flex-1"
+                  size="sm"
+                >
+                  <Sun className="h-4 w-4 mr-2" />
+                  Light
+                </Button>
+                <Button
+                  variant={theme === 'dark' ? 'default' : 'outline'}
+                  onClick={() => setTheme('dark')}
+                  className="flex-1"
+                  size="sm"
+                >
+                  <Moon className="h-4 w-4 mr-2" />
+                  Dark
+                </Button>
+                <Button
+                  variant={theme === 'system' ? 'default' : 'outline'}
+                  onClick={() => setTheme('system')}
+                  className="flex-1"
+                  size="sm"
+                >
+                  <Monitor className="h-4 w-4 mr-2" />
+                  System
+                </Button>
+              </div>
+            </SettingRow>
+          </div>
+        </SettingSection>
+
         <SettingSection title="Timer">
           <div className="space-y-4">
             <SettingRow label="Focus Duration (minutes)">
@@ -142,8 +180,8 @@ export function Settings() {
                 className={cn(
                   "transition-colors",
                   settings.timer.soundEnabled 
-                    ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
-                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                    ? "text-primary" 
+                    : "text-muted-foreground"
                 )}
               >
                 {settings.timer.soundEnabled ? (
@@ -152,48 +190,6 @@ export function Settings() {
                   <VolumeX className="h-5 w-5" />
                 )}
               </Button>
-            </SettingRow>
-          </div>
-        </SettingSection>
-
-        <SettingSection title="Appearance">
-          <div className="space-y-4">
-            <SettingRow label="Theme">
-              <div className="flex space-x-2">
-                <Button
-                  variant={settings.appearance.theme === 'light' ? 'default' : 'outline'}
-                  onClick={() => updateSettings({
-                    appearance: { ...settings.appearance, theme: 'light' }
-                  })}
-                  className="flex-1"
-                  size="sm"
-                >
-                  <Sun className="h-4 w-4 mr-2" />
-                  Light
-                </Button>
-                <Button
-                  variant={settings.appearance.theme === 'dark' ? 'default' : 'outline'}
-                  onClick={() => updateSettings({
-                    appearance: { ...settings.appearance, theme: 'dark' }
-                  })}
-                  className="flex-1"
-                  size="sm"
-                >
-                  <Moon className="h-4 w-4 mr-2" />
-                  Dark
-                </Button>
-                <Button
-                  variant={settings.appearance.theme === 'system' ? 'default' : 'outline'}
-                  onClick={() => updateSettings({
-                    appearance: { ...settings.appearance, theme: 'system' }
-                  })}
-                  className="flex-1"
-                  size="sm"
-                >
-                  <Monitor className="h-4 w-4 mr-2" />
-                  System
-                </Button>
-              </div>
             </SettingRow>
           </div>
         </SettingSection>
@@ -265,8 +261,8 @@ export function Settings() {
                 className={cn(
                   "transition-colors",
                   settings.notifications.timerEnabled 
-                    ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
-                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                    ? "text-primary" 
+                    : "text-muted-foreground"
                 )}
               >
                 {settings.notifications.timerEnabled ? (
@@ -290,8 +286,8 @@ export function Settings() {
                 className={cn(
                   "transition-colors",
                   settings.notifications.taskRemindersEnabled 
-                    ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
-                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                    ? "text-primary" 
+                    : "text-muted-foreground"
                 )}
               >
                 {settings.notifications.taskRemindersEnabled ? (

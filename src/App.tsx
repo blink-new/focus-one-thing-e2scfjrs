@@ -9,6 +9,7 @@ import { TaskHistory } from './components/TaskHistory'
 import { ProjectView } from './components/ProjectView'
 import { Timer } from './components/Timer'
 import { Settings } from './components/Settings'
+import { ThemeProvider } from './components/ThemeProvider'
 import { useFocusStore } from './lib/store'
 
 function InboxView() {
@@ -17,10 +18,10 @@ function InboxView() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold mb-2">
           Inbox
         </h1>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           Capture and organize your tasks.
         </p>
       </div>
@@ -28,7 +29,7 @@ function InboxView() {
       <TaskInput />
       
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <h2 className="text-xl font-semibold mb-4">
           All Tasks
         </h2>
         <SortableTaskList tasks={tasks} />
@@ -40,37 +41,37 @@ function InboxView() {
 function App() {
   const currentTask = useFocusStore((state) => state.currentTask)
 
-  if (currentTask) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8 max-w-3xl">
-          <CurrentTask />
-        </div>
-        <Toaster position="top-center" />
-      </div>
-    )
-  }
-
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
-        <div className="lg:pl-64">
-          <div className="container mx-auto px-4 lg:px-8 py-8 max-w-4xl">
-            <Routes>
-              <Route path="/" element={<InboxView />} />
-              <Route path="/project/:projectId" element={<ProjectView />} />
-              <Route path="/timer" element={<Timer />} />
-              <Route path="/settings" element={<Settings />} />
-            </Routes>
-            <div className="mt-12">
-              <TaskHistory />
-            </div>
+    <ThemeProvider>
+      {currentTask ? (
+        <div className="min-h-screen bg-background text-foreground">
+          <div className="container mx-auto px-4 py-8 max-w-3xl">
+            <CurrentTask />
           </div>
+          <Toaster position="top-center" theme="system" />
         </div>
-        <Toaster position="top-center" />
-      </div>
-    </Router>
+      ) : (
+        <Router>
+          <div className="min-h-screen bg-background text-foreground">
+            <Navigation />
+            <div className="lg:pl-64">
+              <div className="container mx-auto px-4 lg:px-8 py-8 max-w-4xl">
+                <Routes>
+                  <Route path="/" element={<InboxView />} />
+                  <Route path="/project/:projectId" element={<ProjectView />} />
+                  <Route path="/timer" element={<Timer />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Routes>
+                <div className="mt-12">
+                  <TaskHistory />
+                </div>
+              </div>
+            </div>
+            <Toaster position="top-center" theme="system" />
+          </div>
+        </Router>
+      )}
+    </ThemeProvider>
   )
 }
 
