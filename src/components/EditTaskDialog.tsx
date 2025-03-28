@@ -1,159 +1,133 @@
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { MoreVertical } from 'lucide-react'
 import { Task, useFocusStore } from '../lib/store'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog"
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Slider } from './ui/slider'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select"
-import { Pencil } from 'lucide-react'
+import { formatTime } from '../lib/utils'
 
 interface EditTaskDialogProps {
   task: Task
 }
 
 export function EditTaskDialog({ task }: EditTaskDialogProps) {
-  const [open, setOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+  const { updateTask, deleteTask } = useFocusStore()
   const [title, setTitle] = useState(task.title)
   const [impact, setImpact] = useState(task.impact)
   const [urgency, setUrgency] = useState(task.urgency)
   const [effort, setEffort] = useState(task.effort)
-  const [projectId, setProjectId] = useState(task.projectId || 'inbox')
-  
-  const { editTask, projects } = useFocusStore()
+  const [duration, setDuration] = useState(task.duration || 25 * 60)
 
-  useEffect(() => {
-    if (open) {
-      setTitle(task.title)
-      setImpact(task.impact)
-      setUrgency(task.urgency)
-      setEffort(task.effort)
-      setProjectId(task.projectId || 'inbox')
-    }
-  }, [open, task])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!title.trim()) return
-
-    editTask(task.id, {
+  const handleSave = () => {
+    updateTask(task.id, {
       title,
       impact,
       urgency,
       effort,
-      projectId: projectId === 'inbox' ? null : projectId,
+      duration,
     })
+    setIsOpen(false)
+  }
 
-    setOpen(false)
+  const handleDelete = () => {
+    deleteTask(task.id)
+    setIsOpen(false)
+  }
+
+  if (!isOpen) {
+    return (
+      <Button variant="ghost" size="icon" onClick={() => setIsOpen(true)} className="h-8 w-8">
+        <MoreVertical className="h-4 w-4" />
+      </Button>
+    )
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <Pencil className="w-4 h-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit Task</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
-              Task Title
-            </label>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter task title..."
-              className="w-full"
-            />
-          </div>
-
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50">
+      <div className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-full max-w-lg">
+        <div className="bg-card p-6 rounded-lg shadow-lg">
+          <h2 className="text-lg font-semibold mb-4">Edit Task</h2>
+          
           <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Project</label>
-              <Select
-                value={projectId}
-                onValueChange={(value) => setProjectId(value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a project" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="inbox">Inbox</SelectItem>
-                  {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      {project.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Title</label>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full"
+              />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 flex justify-between">
-                Impact <span className="text-blue-600">{impact}/10</span>
-              </label>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Timer Duration: {formatTime(duration)}</label>
+              <Slider
+                value={[duration / 60]}
+                onValueChange={(value) => setDuration(value[0] * 60)}
+                max={60}
+                min={1}
+                step={1}
+                className="my-4"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-1 block">Impact: {impact}</label>
               <Slider
                 value={[impact]}
                 onValueChange={(value) => setImpact(value[0])}
-                max={10}
+                max={5}
+                min={1}
                 step={1}
-                className="w-full"
+                className="my-4"
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 flex justify-between">
-                Urgency <span className="text-red-600">{urgency}/10</span>
-              </label>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Urgency: {urgency}</label>
               <Slider
                 value={[urgency]}
                 onValueChange={(value) => setUrgency(value[0])}
-                max={10}
+                max={5}
+                min={1}
                 step={1}
-                className="w-full"
+                className="my-4"
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 flex justify-between">
-                Effort <span className="text-green-600">{effort}/10</span>
-              </label>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Effort: {effort}</label>
               <Slider
                 value={[effort]}
                 onValueChange={(value) => setEffort(value[0])}
-                max={10}
+                max={5}
+                min={1}
                 step={1}
-                className="w-full"
+                className="my-4"
               />
             </div>
-          </div>
 
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit">
-              Save Changes
-            </Button>
+            {task.totalTimeSpent && task.totalTimeSpent > 0 && (
+              <div className="text-sm text-muted-foreground">
+                Total time spent: {formatTime(task.totalTimeSpent)}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 mt-6">
+              <Button variant="outline" onClick={() => setIsOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDelete}>
+                Delete
+              </Button>
+              <Button onClick={handleSave}>
+                Save Changes
+              </Button>
+            </div>
           </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </div>
   )
 }

@@ -11,6 +11,7 @@ export interface Task {
   completed: boolean
   date?: string
   duration?: number
+  totalTimeSpent?: number
   projectId?: string
   reflection?: string
 }
@@ -50,10 +51,8 @@ interface FocusState {
   projects: Project[]
   currentTask: Task | null
   settings: Settings
-  // Timer state
   isTimerRunning: boolean
   remainingTime: number
-  // Actions
   addTask: (task: Omit<Task, 'id' | 'completed'>) => void
   toggleTaskComplete: (id: string) => void
   deleteTask: (id: string) => void
@@ -64,10 +63,10 @@ interface FocusState {
   setCurrentTask: (task: Task | null) => void
   reorderTasks: (taskIds: string[]) => void
   updateSettings: (updates: Partial<Settings>) => void
-  // Timer actions
   startTimer: () => void
   stopTimer: () => void
   setRemainingTime: (time: number) => void
+  updateTaskTimeSpent: (taskId: string, timeSpent: number) => void
 }
 
 export const calculateImpactScore = (task: Task) => {
@@ -88,18 +87,17 @@ export const useFocusStore = create<FocusState>()(
       tasks: [],
       projects: [],
       currentTask: null,
-      // Timer state initialization
       isTimerRunning: false,
-      remainingTime: 25 * 60, // 25 minutes in seconds
+      remainingTime: 25 * 60,
       settings: {
         appearance: {
           theme: 'system' as Theme
         },
         timer: {
-          focusDuration: 25 * 60, // 25 minutes in seconds
-          shortBreakDuration: 5 * 60, // 5 minutes in seconds
-          longBreakDuration: 15 * 60, // 15 minutes in seconds
-          longBreakInterval: 4, // Every 4 focus sessions
+          focusDuration: 25 * 60,
+          shortBreakDuration: 5 * 60,
+          longBreakDuration: 15 * 60,
+          longBreakInterval: 4,
           soundEnabled: true
         },
         tasks: {
@@ -120,6 +118,7 @@ export const useFocusStore = create<FocusState>()(
               ...task,
               id: Date.now().toString(),
               completed: false,
+              totalTimeSpent: 0,
             },
           ],
         })),
@@ -167,6 +166,7 @@ export const useFocusStore = create<FocusState>()(
       setCurrentTask: (task) =>
         set(() => ({
           currentTask: task,
+          remainingTime: task?.duration || 25 * 60,
         })),
       reorderTasks: (taskIds) =>
         set((state) => ({
@@ -181,10 +181,17 @@ export const useFocusStore = create<FocusState>()(
             ...updates,
           },
         })),
-      // Timer actions
       startTimer: () => set({ isTimerRunning: true }),
       stopTimer: () => set({ isTimerRunning: false }),
       setRemainingTime: (time: number) => set({ remainingTime: time }),
+      updateTaskTimeSpent: (taskId: string, timeSpent: number) =>
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === taskId
+              ? { ...task, totalTimeSpent: (task.totalTimeSpent || 0) + timeSpent }
+              : task
+          ),
+        })),
     }),
     {
       name: 'focus-store',
