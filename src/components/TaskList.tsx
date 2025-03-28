@@ -13,7 +13,7 @@ export function TaskList({ projectId }: TaskListProps) {
     )
   )
 
-  if (tasks.length === 0) {
+  if (!tasks || tasks.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="dark:text-zinc-400 text-zinc-600">

@@ -1,6 +1,6 @@
 
 import { useState } from 'react'
-import { useFocusStore, type Task as TaskType } from '../lib/store'
+import { useFocusStore } from '../lib/store'
 import { Checkbox } from './ui/checkbox'
 import { Button } from './ui/button'
 import { MoreVertical, Trash } from 'lucide-react'
@@ -11,12 +11,23 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
 
+interface TaskType {
+  id: string
+  title: string
+  completed: boolean
+  projectId: string
+  impact: number
+  urgency: number
+  effort: number
+  date?: string
+  duration?: number
+}
+
 interface TaskProps {
   task: TaskType
 }
 
 export function Task({ task }: TaskProps) {
-  const [showOptions, setShowOptions] = useState(false)
   const toggleComplete = useFocusStore(state => state.toggleTaskComplete)
   const deleteTask = useFocusStore(state => state.deleteTask)
   const project = useFocusStore(state => 
