@@ -1,37 +1,30 @@
 
 import { useFocusStore } from '../lib/store'
-import { TaskItem } from './TaskItem'
+import { Task } from './Task'
 
 interface TaskListProps {
-  projectId?: string
+  filter?: string
 }
 
-export function TaskList({ projectId }: TaskListProps) {
-  const tasks = useFocusStore(state => 
-    state.tasks.filter(task => 
-      projectId ? task.projectId === projectId : true
-    )
-  )
-  const toggleTaskComplete = useFocusStore(state => state.toggleTaskComplete)
+export function TaskList({ filter }: TaskListProps) {
+  const tasks = useFocusStore(state => {
+    const allTasks = state.tasks
+    if (!filter) return allTasks
+    return allTasks.filter(t => t.project === filter)
+  })
 
-  if (!tasks || tasks.length === 0) {
+  if (tasks.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="dark:text-zinc-400 text-zinc-600">
-          No tasks yet. Add one above!
-        </p>
+      <div className="p-4 text-center dark:bg-zinc-900 bg-white rounded-lg">
+        <p className="text-zinc-500 dark:text-zinc-400">No tasks yet</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {tasks.map(task => (
-        <TaskItem 
-          key={task.id} 
-          task={task} 
-          onToggle={() => toggleTaskComplete(task.id)}
-        />
+        <Task key={task.id} task={task} />
       ))}
     </div>
   )
