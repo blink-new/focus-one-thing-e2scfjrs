@@ -1,70 +1,84 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { Task, Project } from '../types'
 
-export interface Task {
-  id: string
-  title: string
-  completed: boolean
-  impact: number
-  urgency: number
-  effort: number
-  project: string
-  createdAt: string
+// Impact score calculation
+export const calculateImpactScore = (task: Task): number => {
+  const urgencyWeight = 0.4
+  const importanceWeight = 0.6
+  
+  // Normalize values to 0-1 scale
+  const urgencyScore = task.urgency / 5
+  const importanceScore = task.importance / 5
+  
+  // Calculate weighted score
+  const score = (urgencyScore * urgencyWeight) + (importanceScore * importanceWeight)
+  
+  // Return score rounded to 2 decimal places
+  return Math.round(score * 100) / 100
 }
 
-export interface Project {
-  id: string
-  name: string
-  color?: string
-}
-
-interface FocusStore {
+interface FocusState {
   tasks: Task[]
   projects: Project[]
   defaultProject: string
-  focusMode: boolean
-  focusTask: Task | null
   addTask: (task: Task) => void
-  toggleComplete: (id: string) => void
-  deleteTask: (id: string) => void
+  removeTask: (taskId: string) => void
+  updateTask: (taskId: string, updates: Partial<Task>) => void
+  toggleTaskComplete: (taskId: string) => void
+  addProject: (project: Project) => void
+  removeProject: (projectId: string) => void
+  updateProject: (projectId: string, updates: Partial<Project>) => void
   setDefaultProject: (projectId: string) => void
-  toggleFocusMode: () => void
-  setFocusTask: (task: Task | null) => void
 }
 
-export const useFocusStore = create<FocusStore>()(
+export const useFocusStore = create<FocusState>()(
   persist(
     (set) => ({
       tasks: [],
-      projects: [
-        { id: 'inbox', name: 'Inbox' },
-        { id: 'work', name: 'Work', color: '#0ea5e9' },
-        { id: 'personal', name: 'Personal', color: '#8b5cf6' },
-        { id: 'blink', name: 'Blink', color: '#f43f5e' },
-      ],
+      projects: [{ id: 'inbox', name: 'Inbox', color: '#6366f1' }],
       defaultProject: 'inbox',
-      focusMode: false,
-      focusTask: null,
-      addTask: (task) => set((state) => ({ 
-        tasks: [...state.tasks, {
-          ...task,
-          project: task.project || state.defaultProject
-        }]
-      })),
-      toggleComplete: (id) =>
+      addTask: (task) =>
+        set((state) => ({
+          tasks: [...state.tasks, task],
+        })),
+      removeTask: (taskId) =>
+        set((state) => ({
+          tasks: state.tasks.filter((t) => t.id !== taskId),
+        })),
+      updateTask: (taskId, updates) =>
         set((state) => ({
           tasks: state.tasks.map((task) =>
-            task.id === id ? { ...task, completed: !task.completed } : task
+            task.id === taskId ? { ...task, ...updates } : task
           ),
         })),
-      deleteTask: (id) =>
+      toggleTaskComplete: (taskId) =>
         set((state) => ({
-          tasks: state.tasks.filter((task) => task.id !== id),
+          tasks: state.tasks.map((task) =>
+            task.id === taskId
+              ? { ...task, completed: !task.completed }
+              : task
+          ),
         })),
-      setDefaultProject: (projectId) => set({ defaultProject: projectId }),
-      toggleFocusMode: () => set((state) => ({ focusMode: !state.focusMode })),
-      setFocusTask: (task) => set({ focusTask: task }),
+      addProject: (project) =>
+        set((state) => ({
+          projects: [...state.projects, project],
+        })),
+      removeProject: (projectId) =>
+        set((state) => ({
+          projects: state.projects.filter((p) => p.id !== projectId),
+        })),
+      updateProject: (projectId, updates) =>
+        set((state) => ({
+          projects: state.projects.map((project) =>
+            project.id === projectId ? { ...project, ...updates } : project
+          ),
+        })),
+      setDefaultProject: (projectId) =>
+        set(() => ({
+          defaultProject: projectId,
+        })),
     }),
     {
       name: 'focus-store',
