@@ -1,9 +1,10 @@
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { Toaster } from 'sonner'
 import { Navigation } from './components/Navigation'
 import { CurrentTask } from './components/CurrentTask'
 import { TaskInput } from './components/TaskInput'
-import { TaskList } from './components/TaskList'
+import { SortableTaskList } from './components/SortableTaskList'
 import { TaskHistory } from './components/TaskHistory'
 import { ProjectView } from './components/ProjectView'
 import { useFocusStore } from './lib/store'
@@ -28,7 +29,7 @@ function InboxView() {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
           All Tasks
         </h2>
-        <TaskList tasks={tasks} />
+        <SortableTaskList tasks={tasks} />
       </div>
     </div>
   )
@@ -43,6 +44,7 @@ function App() {
         <div className="container mx-auto px-4 py-8 max-w-3xl">
           <CurrentTask />
         </div>
+        <Toaster position="top-center" />
       </div>
     )
   }
@@ -51,8 +53,8 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-50">
         <Navigation />
-        <div className="pl-64">
-          <div className="container mx-auto px-8 py-8 max-w-4xl">
+        <div className="lg:pl-64">
+          <div className="container mx-auto px-4 lg:px-8 py-8 max-w-4xl">
             <Routes>
               <Route path="/" element={<InboxView />} />
               <Route path="/project/:projectId" element={<ProjectView />} />
@@ -62,6 +64,7 @@ function App() {
             </div>
           </div>
         </div>
+        <Toaster position="top-center" />
       </div>
     </Router>
   )

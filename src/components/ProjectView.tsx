@@ -1,9 +1,10 @@
 
 import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { useFocusStore } from '../lib/store'
 import { TaskInput } from './TaskInput'
-import { TaskList } from './TaskList'
+import { SortableTaskList } from './SortableTaskList'
 
 export function ProjectView() {
   const { projectId } = useParams()
@@ -15,11 +16,23 @@ export function ProjectView() {
   }, [tasks, projectId])
 
   if (!project) {
-    return <div>Project not found</div>
+    return (
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center py-12 text-gray-500"
+      >
+        Project not found
+      </motion.div>
+    )
   }
 
   return (
-    <div className="space-y-8">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-8"
+    >
       <div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           {project.name}
@@ -35,8 +48,8 @@ export function ProjectView() {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
           Tasks
         </h2>
-        <TaskList tasks={projectTasks} />
+        <SortableTaskList tasks={projectTasks} />
       </div>
-    </div>
+    </motion.div>
   )
 }
