@@ -13,6 +13,8 @@ export interface Task {
   completedAt?: number
   projectId?: string | null
   order: number
+  impact: number
+  urgency: number
 }
 
 export interface Project {
@@ -50,7 +52,7 @@ interface FocusStore {
   completedTasks: Task[]
   settings: Settings
   addTask: (title: string, projectId?: string) => void
-  completeTask: (taskId: string) => void
+  completeTask: (taskId: string, reflection?: string) => void
   uncompleteTask: (taskId: string) => void
   deleteTask: (taskId: string) => void
   setCurrentTask: (task: Task | null) => void
@@ -83,6 +85,10 @@ const DEFAULT_SETTINGS: Settings = {
   },
 }
 
+export const calculateImpactScore = (task: Task): number => {
+  return (task.impact * 0.7 + task.urgency * 0.3)
+}
+
 export const useFocusStore = create<FocusStore>()(
   persist(
     (set) => ({
@@ -102,10 +108,12 @@ export const useFocusStore = create<FocusStore>()(
               createdAt: Date.now(),
               projectId: projectId || state.settings.tasks.defaultProjectId,
               order: state.tasks.length,
+              impact: 5, // Default impact score
+              urgency: 5, // Default urgency score
             },
           ],
         })),
-      completeTask: (taskId) =>
+      completeTask: (taskId, reflection) =>
         set((state) => {
           const task = state.tasks.find((t) => t.id === taskId)
           if (!task) return state
