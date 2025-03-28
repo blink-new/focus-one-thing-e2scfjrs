@@ -5,7 +5,7 @@ import {
   Inbox, 
   Settings,
   Plus,
-  Timer,
+  X,
   MoreVertical
 } from 'lucide-react'
 import { useFocusStore, type Project } from '../lib/store'
@@ -63,7 +63,7 @@ export function Navigation() {
   const location = useLocation()
 
   return (
-    <nav className="w-64 bg-background border-r h-screen p-4 fixed left-0 top-0">
+    <nav className="w-64 bg-card border-r h-screen p-4 fixed left-0 top-0">
       <div className="flex flex-col h-full">
         <div className="space-y-1">
           <Link
@@ -77,19 +77,6 @@ export function Navigation() {
           >
             <Inbox className="w-5 h-5" />
             <span>Inbox</span>
-          </Link>
-
-          <Link
-            to="/timer"
-            className={cn(
-              "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
-              location.pathname === "/timer" 
-                ? "bg-accent text-accent-foreground" 
-                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-            )}
-          >
-            <Timer className="w-5 h-5" />
-            <span>Timer</span>
           </Link>
         </div>
 

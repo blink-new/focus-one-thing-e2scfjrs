@@ -1,14 +1,14 @@
 
-import { createContext, useContext, useEffect, useState } from 'react'
-import { useFocusStore, type Theme } from '../lib/store'
+import { createContext, useContext, useEffect } from 'react'
+import { useFocusStore } from '../lib/store'
 
-type ThemeContextType = {
+type Theme = 'dark' | 'light'
+
+const ThemeContext = createContext<{
   theme: Theme
   setTheme: (theme: Theme) => void
-}
-
-const ThemeContext = createContext<ThemeContextType>({
-  theme: 'system',
+}>({
+  theme: 'light',
   setTheme: () => null,
 })
 
@@ -21,66 +21,46 @@ export function ThemeProvider({
 }: {
   children: React.ReactNode
 }) {
-  const settings = useFocusStore(state => state.settings)
-  const updateSettings = useFocusStore(state => state.updateSettings)
-  const [systemTheme, setSystemTheme] = useState<'dark' | 'light'>(
-    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  )
+  const { settings, updateSettings } = useFocusStore()
 
   // Update the theme based on system preference
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     
-    const updateSystemTheme = (e: MediaQueryListEvent | MediaQueryList) => {
-      const newTheme = e.matches ? 'dark' : 'light'
-      setSystemTheme(newTheme)
+    const updateTheme = () => {
+      if (settings.appearance.theme === 'system') {
+        document.documentElement.classList.toggle('dark', mediaQuery.matches)
+      }
     }
 
-    // Initial check
-    updateSystemTheme(mediaQuery)
+    mediaQuery.addEventListener('change', updateTheme)
+    return () => mediaQuery.removeEventListener('change', updateTheme)
+  }, [settings.appearance.theme])
 
-    // Listen for changes
-    mediaQuery.addEventListener('change', updateSystemTheme)
-    return () => mediaQuery.removeEventListener('change', updateSystemTheme)
-  }, [])
-
-  // Initialize settings if they don't exist
+  // Update theme when settings change
   useEffect(() => {
-    if (!settings?.appearance?.theme) {
-      updateSettings({
-        appearance: { 
-          theme: 'system',
-        },
-        ...settings
-      })
-    }
-  }, [])
-
-  // Apply theme changes
-  useEffect(() => {
-    const theme = settings?.appearance?.theme || 'system'
-    const isDark = theme === 'dark' || (theme === 'system' && systemTheme === 'dark')
+    const isDark = 
+      settings.appearance.theme === 'dark' ||
+      (settings.appearance.theme === 'system' && 
+       window.matchMedia('(prefers-color-scheme: dark)').matches)
     
     document.documentElement.classList.toggle('dark', isDark)
-    document.documentElement.classList.toggle('light', !isDark)
-  }, [settings?.appearance?.theme, systemTheme])
+  }, [settings.appearance.theme])
 
   const setTheme = (theme: Theme) => {
     updateSettings({
-      ...settings,
-      appearance: { 
-        ...settings?.appearance,
-        theme 
-      }
+      appearance: { theme }
     })
   }
-
-  const currentTheme = settings?.appearance?.theme || 'system'
 
   return (
     <ThemeContext.Provider
       value={{
-        theme: currentTheme,
+        theme: settings.appearance.theme === 'system'
+          ? window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light'
+          : settings.appearance.theme,
         setTheme,
       }}
     >

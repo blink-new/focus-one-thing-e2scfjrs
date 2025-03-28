@@ -39,16 +39,30 @@ function InboxView() {
 }
 
 function App() {
+  const currentTask = useFocusStore((state) => state.currentTask)
+
+  if (currentTask) {
+    return (
+      <ThemeProvider>
+        <div className="min-h-screen bg-background">
+          <div className="container mx-auto px-4 py-8 max-w-3xl">
+            <CurrentTask />
+          </div>
+          <Toaster position="top-center" theme="system" />
+        </div>
+      </ThemeProvider>
+    )
+  }
+
   return (
     <ThemeProvider>
       <Router>
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="min-h-screen bg-background">
           <Navigation />
           <div className="lg:pl-64">
             <div className="container mx-auto px-4 lg:px-8 py-8 max-w-4xl">
               <Routes>
                 <Route path="/" element={<InboxView />} />
-                <Route path="/focus" element={<CurrentTask />} />
                 <Route path="/project/:projectId" element={<ProjectView />} />
                 <Route path="/timer" element={<Timer />} />
                 <Route path="/settings" element={<Settings />} />
