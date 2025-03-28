@@ -27,8 +27,8 @@ function ProjectItem({ project }: { project: Project }) {
           className={cn(
             "flex-1 flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
             isActive 
-              ? "bg-primary/10 text-primary" 
-              : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
+              ? "dark:bg-zinc-950 dark:text-white bg-zinc-100 text-black" 
+              : "dark:text-zinc-500 dark:hover:bg-zinc-950 dark:hover:text-white text-zinc-600 hover:bg-zinc-100 hover:text-black"
           )}
         >
           <div 
@@ -63,7 +63,7 @@ export function Navigation() {
   const location = useLocation()
 
   return (
-    <nav className="w-64 bg-card border-r border-border h-screen p-4 fixed left-0 top-0">
+    <nav className="w-64 dark:bg-[#0a0a0a] bg-white border-r dark:border-zinc-900 border-zinc-200 h-screen p-4 fixed left-0 top-0">
       <div className="flex flex-col h-full">
         <div className="space-y-1">
           <Link
@@ -71,8 +71,8 @@ export function Navigation() {
             className={cn(
               "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
               location.pathname === "/" 
-                ? "bg-primary/10 text-primary" 
-                : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
+                ? "dark:bg-zinc-950 dark:text-white bg-zinc-100 text-black" 
+                : "dark:text-zinc-500 dark:hover:bg-zinc-950 dark:hover:text-white text-zinc-600 hover:bg-zinc-100 hover:text-black"
             )}
           >
             <Inbox className="w-5 h-5" />
@@ -82,12 +82,12 @@ export function Navigation() {
 
         <div className="mt-8">
           <div className="flex items-center justify-between px-3 mb-2">
-            <h2 className="text-sm font-medium text-muted-foreground">Projects</h2>
+            <h2 className="text-sm font-medium dark:text-zinc-500 text-zinc-600">Projects</h2>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setShowNewProject(true)}
-              className="h-5 w-5 hover:bg-primary/5 hover:text-primary"
+              className="h-5 w-5 dark:hover:bg-zinc-950 dark:hover:text-white hover:bg-zinc-100 hover:text-black"
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -110,8 +110,8 @@ export function Navigation() {
             className={cn(
               "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
               location.pathname === "/settings"
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
+                ? "dark:bg-zinc-950 dark:text-white bg-zinc-100 text-black"
+                : "dark:text-zinc-500 dark:hover:bg-zinc-950 dark:hover:text-white text-zinc-600 hover:bg-zinc-100 hover:text-black"
             )}
           >
             <Settings className="w-5 h-5" />
