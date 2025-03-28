@@ -44,29 +44,29 @@ export function TaskInput() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-[#0B0F17] rounded-lg shadow-sm">
+    <form onSubmit={handleSubmit} className="space-y-6 p-6 bg-[#0A0D14] rounded-xl border border-[#1A1F2C]">
       <div className="space-y-2">
-        <h3 className="font-medium text-sm text-slate-400">What needs to be done?</h3>
+        <h3 className="font-medium text-sm text-slate-200">What needs to be done?</h3>
         <Input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter a new task..."
-          className="bg-[#0D1219] text-slate-300 placeholder:text-slate-600 border-[#1A2333] focus:border-[#2A3343] focus:ring-[#2A3343]"
+          className="bg-[#12151D] border-[#1A1F2C] text-slate-200 placeholder:text-slate-600"
         />
       </div>
 
-      <div className="space-y-4">
-        <div className="grid grid-cols-4 gap-4 items-center">
+      <div className="space-y-6">
+        <div className="grid grid-cols-4 gap-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-400">Project</label>
+            <label className="text-sm font-medium text-slate-300">Project</label>
             <Select value={project} onValueChange={setProject}>
-              <SelectTrigger className="bg-[#0D1219] border-[#1A2333] text-slate-300">
+              <SelectTrigger className="bg-[#12151D] border-[#1A1F2C] text-slate-200">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-[#0D1219] border-[#1A2333]">
+              <SelectContent className="bg-[#12151D] border-[#1A1F2C]">
                 {projects.map(p => (
-                  <SelectItem key={p.id} value={p.id} className="text-slate-300">
+                  <SelectItem key={p.id} value={p.id} className="text-slate-200">
                     {p.name}
                   </SelectItem>
                 ))}
@@ -75,7 +75,7 @@ export function TaskInput() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-400">
+            <label className="text-sm font-medium text-slate-300">
               Impact {impact}/10
             </label>
             <Slider
@@ -83,12 +83,12 @@ export function TaskInput() {
               onValueChange={setImpact}
               max={10}
               step={1}
-              className="bg-[#1A2333]"
+              className="[&_[role=slider]]:bg-[#1A1F2C] [&_[role=slider]]:border-[#2A3343]"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-400">
+            <label className="text-sm font-medium text-slate-300">
               Urgency {urgency}/10
             </label>
             <Slider
@@ -96,12 +96,12 @@ export function TaskInput() {
               onValueChange={setUrgency}
               max={10}
               step={1}
-              className="bg-[#1A2333]"
+              className="[&_[role=slider]]:bg-[#1A1F2C] [&_[role=slider]]:border-[#2A3343]"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-400">
+            <label className="text-sm font-medium text-slate-300">
               Effort {effort}/10
             </label>
             <Slider
@@ -109,14 +109,19 @@ export function TaskInput() {
               onValueChange={setEffort}
               max={10}
               step={1}
-              className="bg-[#1A2333]"
+              className="[&_[role=slider]]:bg-[#1A1F2C] [&_[role=slider]]:border-[#2A3343]"
             />
           </div>
         </div>
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit" className="bg-[#1A2333] text-slate-300 hover:bg-[#2A3343]">Add Task</Button>
+        <Button 
+          type="submit" 
+          className="bg-[#1A1F2C] text-slate-200 hover:bg-[#2A3343] transition-colors"
+        >
+          Add Task
+        </Button>
       </div>
     </form>
   )
