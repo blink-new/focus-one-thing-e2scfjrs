@@ -27,8 +27,8 @@ function ProjectItem({ project }: { project: Project }) {
           className={cn(
             "flex-1 flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
             isActive 
-              ? "bg-accent text-accent-foreground" 
-              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              ? "bg-primary/10 text-primary" 
+              : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
           )}
         >
           <div 
@@ -63,7 +63,7 @@ export function Navigation() {
   const location = useLocation()
 
   return (
-    <nav className="w-64 bg-background border-r h-screen p-4 fixed left-0 top-0">
+    <nav className="w-64 bg-card border-r border-border h-screen p-4 fixed left-0 top-0">
       <div className="flex flex-col h-full">
         <div className="space-y-1">
           <Link
@@ -71,8 +71,8 @@ export function Navigation() {
             className={cn(
               "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
               location.pathname === "/" 
-                ? "bg-accent text-accent-foreground" 
-                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                ? "bg-primary/10 text-primary" 
+                : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
             )}
           >
             <Inbox className="w-5 h-5" />
@@ -87,7 +87,7 @@ export function Navigation() {
               variant="ghost"
               size="icon"
               onClick={() => setShowNewProject(true)}
-              className="h-5 w-5"
+              className="h-5 w-5 hover:bg-primary/5 hover:text-primary"
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -110,8 +110,8 @@ export function Navigation() {
             className={cn(
               "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
               location.pathname === "/settings"
-                ? "bg-accent text-accent-foreground"
-                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
             )}
           >
             <Settings className="w-5 h-5" />
