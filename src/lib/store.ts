@@ -5,13 +5,14 @@ import { persist } from 'zustand/middleware'
 export interface Task {
   id: string
   title: string
-  completed: boolean
-  projectId: string
   impact: number
   urgency: number
   effort: number
+  completed: boolean
   date?: string
   duration?: number
+  projectId?: string
+  reflection?: string
 }
 
 export interface Project {
@@ -23,38 +24,28 @@ export interface Project {
 interface FocusState {
   tasks: Task[]
   projects: Project[]
-  addTask: (task: Task) => void
-  toggleTaskComplete: (taskId: string) => void
-  deleteTask: (taskId: string) => void
-  addProject: (project: Project) => void
-  deleteProject: (projectId: string) => void
+  currentTask: Task | null
+  addTask: (task: Omit<Task, 'id' | 'completed'>) => void
+  toggleTaskComplete: (id: string) => void
+  deleteTask: (id: string) => void
+  updateTask: (id: string, updates: Partial<Task>) => void
+  addProject: (project: Omit<Project, 'id'>) => void
+  deleteProject: (id: string) => void
+  updateProject: (id: string, updates: Partial<Project>) => void
+  setCurrentTask: (task: Task | null) => void
+  reorderTasks: (taskIds: string[]) => void
 }
 
-// Score calculation functions
-export const calculateImpactScore = (task: Task): number => {
-  // Impact score formula: (Impact * Urgency) / Effort
-  return (task.impact * task.urgency) / (task.effort || 1)
+export const calculateImpactScore = (task: Task) => {
+  return (task.impact * task.urgency) / task.effort
 }
 
-export const calculatePriority = (task: Task): number => {
-  // Priority score includes time sensitivity if date is present
-  const baseScore = calculateImpactScore(task)
-  
-  if (!task.date) {
-    return baseScore
-  }
-
-  const dueDate = new Date(task.date)
-  const now = new Date()
-  const daysUntilDue = Math.max(0, Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
-  
-  // Increase priority for tasks due soon
-  const timeMultiplier = daysUntilDue <= 1 ? 2 : // Due within 24 hours
-                        daysUntilDue <= 3 ? 1.5 : // Due within 3 days
-                        daysUntilDue <= 7 ? 1.2 : // Due within a week
-                        1 // More than a week away
-
-  return baseScore * timeMultiplier
+export const calculatePriority = (task: Task) => {
+  const impactScore = calculateImpactScore(task)
+  const daysUntilDue = task.date
+    ? (new Date(task.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    : 30
+  return impactScore * (1 + 1 / Math.max(1, daysUntilDue))
 }
 
 export const useFocusStore = create<FocusState>()(
@@ -62,30 +53,68 @@ export const useFocusStore = create<FocusState>()(
     (set) => ({
       tasks: [],
       projects: [],
+      currentTask: null,
       addTask: (task) =>
         set((state) => ({
-          tasks: [...state.tasks, task],
+          tasks: [
+            ...state.tasks,
+            {
+              ...task,
+              id: Date.now().toString(),
+              completed: false,
+            },
+          ],
         })),
-      toggleTaskComplete: (taskId) =>
+      toggleTaskComplete: (id) =>
         set((state) => ({
           tasks: state.tasks.map((task) =>
-            task.id === taskId
+            task.id === id
               ? { ...task, completed: !task.completed }
               : task
           ),
         })),
-      deleteTask: (taskId) =>
+      deleteTask: (id) =>
         set((state) => ({
-          tasks: state.tasks.filter((task) => task.id !== taskId),
+          tasks: state.tasks.filter((task) => task.id !== id),
+          currentTask: state.currentTask?.id === id ? null : state.currentTask,
+        })),
+      updateTask: (id, updates) =>
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id ? { ...task, ...updates } : task
+          ),
+          currentTask:
+            state.currentTask?.id === id
+              ? { ...state.currentTask, ...updates }
+              : state.currentTask,
         })),
       addProject: (project) =>
         set((state) => ({
-          projects: [...state.projects, project],
+          projects: [
+            ...state.projects,
+            { ...project, id: Date.now().toString() },
+          ],
         })),
-      deleteProject: (projectId) =>
+      deleteProject: (id) =>
         set((state) => ({
-          projects: state.projects.filter((project) => project.id !== projectId),
-          tasks: state.tasks.filter((task) => task.projectId !== projectId),
+          projects: state.projects.filter((project) => project.id !== id),
+          tasks: state.tasks.filter((task) => task.projectId !== id),
+        })),
+      updateProject: (id, updates) =>
+        set((state) => ({
+          projects: state.projects.map((project) =>
+            project.id === id ? { ...project, ...updates } : project
+          ),
+        })),
+      setCurrentTask: (task) =>
+        set(() => ({
+          currentTask: task,
+        })),
+      reorderTasks: (taskIds) =>
+        set((state) => ({
+          tasks: taskIds
+            .map((id) => state.tasks.find((task) => task.id === id))
+            .filter((task): task is Task => task !== undefined),
         })),
     }),
     {

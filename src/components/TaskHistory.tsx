@@ -31,7 +31,7 @@ export function TaskHistory() {
                 </div>
               </div>
               <span className="text-sm text-gray-500 whitespace-nowrap">
-                {new Date(task.date).toLocaleDateString()}
+                {task.date ? new Date(task.date).toLocaleDateString() : 'No date'}
               </span>
             </div>
             {task.reflection && (
