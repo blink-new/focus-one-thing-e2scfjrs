@@ -1,6 +1,6 @@
 
 import { useFocusStore } from '../lib/store'
-import { Task } from './Task'
+import { TaskItem } from './TaskItem'
 
 interface TaskListProps {
   projectId?: string
@@ -12,6 +12,7 @@ export function TaskList({ projectId }: TaskListProps) {
       projectId ? task.projectId === projectId : true
     )
   )
+  const toggleTaskComplete = useFocusStore(state => state.toggleTaskComplete)
 
   if (!tasks || tasks.length === 0) {
     return (
@@ -26,7 +27,11 @@ export function TaskList({ projectId }: TaskListProps) {
   return (
     <div className="space-y-4">
       {tasks.map(task => (
-        <Task key={task.id} task={task} />
+        <TaskItem 
+          key={task.id} 
+          task={task} 
+          onToggle={() => toggleTaskComplete(task.id)}
+        />
       ))}
     </div>
   )
