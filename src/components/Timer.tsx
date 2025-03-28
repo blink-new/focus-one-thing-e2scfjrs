@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { useFocusStore } from '../lib/store'
 import { Button } from './ui/button'
 import { Progress } from './ui/progress'
+import { cn } from '../lib/utils'
 
 export function Timer() {
   const {
@@ -46,8 +47,6 @@ export function Timer() {
   }
 
   const progress = ((25 * 60 - remainingTime) / (25 * 60)) * 100
-
-  if (!currentTask) return null
 
   return (
     <motion.div 
