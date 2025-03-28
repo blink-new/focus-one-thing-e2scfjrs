@@ -3,34 +3,26 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { Task, Project } from '../types'
 
-// Priority calculation
-export const calculatePriority = (task: Task): number => {
-  const urgencyWeight = 0.4
-  const importanceWeight = 0.6
-  
-  // Normalize values to 0-1 scale
-  const urgencyScore = task.urgency / 5
-  const importanceScore = task.importance / 5
-  
-  // Calculate weighted score
-  const score = (urgencyScore * urgencyWeight) + (importanceScore * importanceWeight)
-  
-  // Return score rounded to 2 decimal places
-  return Math.round(score * 100) / 100
+// Impact score calculation
+export const calculateImpactScore = (task: Task): number => {
+  return Math.round((task.impact * 2 - task.effort) * 10) / 10
 }
 
 interface FocusState {
   tasks: Task[]
   projects: Project[]
   defaultProject: string
+  currentTask: Task | null
   addTask: (task: Task) => void
   removeTask: (taskId: string) => void
+  deleteTask: (taskId: string) => void
   updateTask: (taskId: string, updates: Partial<Task>) => void
   toggleTaskComplete: (taskId: string) => void
   addProject: (project: Project) => void
   removeProject: (projectId: string) => void
   updateProject: (projectId: string, updates: Partial<Project>) => void
   setDefaultProject: (projectId: string) => void
+  setCurrentTask: (task: Task | null) => void
 }
 
 export const useFocusStore = create<FocusState>()(
@@ -39,11 +31,16 @@ export const useFocusStore = create<FocusState>()(
       tasks: [],
       projects: [{ id: 'inbox', name: 'Inbox', color: '#6366f1' }],
       defaultProject: 'inbox',
+      currentTask: null,
       addTask: (task) =>
         set((state) => ({
           tasks: [...state.tasks, task],
         })),
       removeTask: (taskId) =>
+        set((state) => ({
+          tasks: state.tasks.filter((t) => t.id !== taskId),
+        })),
+      deleteTask: (taskId) =>
         set((state) => ({
           tasks: state.tasks.filter((t) => t.id !== taskId),
         })),
@@ -78,6 +75,10 @@ export const useFocusStore = create<FocusState>()(
       setDefaultProject: (projectId) =>
         set(() => ({
           defaultProject: projectId,
+        })),
+      setCurrentTask: (task) =>
+        set(() => ({
+          currentTask: task,
         })),
     }),
     {

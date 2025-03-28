@@ -1,5 +1,4 @@
 
-import { useState } from 'react'
 import { useFocusStore } from '../lib/store'
 import { Checkbox } from './ui/checkbox'
 import { Button } from './ui/button'
@@ -10,18 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
-
-interface TaskType {
-  id: string
-  title: string
-  completed: boolean
-  projectId: string
-  impact: number
-  urgency: number
-  effort: number
-  date?: string
-  duration?: number
-}
+import { Task as TaskType } from '../types'
 
 interface TaskProps {
   task: TaskType
