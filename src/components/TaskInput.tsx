@@ -18,7 +18,7 @@ export function TaskInput({ defaultProjectId = null }: { defaultProjectId?: stri
   const [impact, setImpact] = useState(5)
   const [urgency, setUrgency] = useState(5)
   const [effort, setEffort] = useState(5)
-  const [projectId, setProjectId] = useState(defaultProjectId)
+  const [projectId, setProjectId] = useState(defaultProjectId || 'inbox')
   
   const { addTask, projects } = useFocusStore()
 
@@ -35,7 +35,7 @@ export function TaskInput({ defaultProjectId = null }: { defaultProjectId?: stri
       completed: false,
       date: new Date().toISOString(),
       duration: 25 * 60,
-      projectId,
+      projectId: projectId === 'inbox' ? null : projectId,
     })
 
     setTitle('')
@@ -62,14 +62,14 @@ export function TaskInput({ defaultProjectId = null }: { defaultProjectId?: stri
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">Project</label>
           <Select
-            value={projectId || ""}
-            onValueChange={(value) => setProjectId(value || null)}
+            value={projectId}
+            onValueChange={(value) => setProjectId(value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select a project" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Inbox</SelectItem>
+              <SelectItem value="inbox">Inbox</SelectItem>
               {projects.map((project) => (
                 <SelectItem key={project.id} value={project.id}>
                   {project.name}
