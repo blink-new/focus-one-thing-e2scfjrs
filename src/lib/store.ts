@@ -21,10 +21,19 @@ export interface Project {
   description?: string
 }
 
+export type Theme = 'light' | 'dark' | 'system'
+
+interface Settings {
+  appearance: {
+    theme: Theme
+  }
+}
+
 interface FocusState {
   tasks: Task[]
   projects: Project[]
   currentTask: Task | null
+  settings: Settings
   addTask: (task: Omit<Task, 'id' | 'completed'>) => void
   toggleTaskComplete: (id: string) => void
   deleteTask: (id: string) => void
@@ -34,6 +43,7 @@ interface FocusState {
   updateProject: (id: string, updates: Partial<Project>) => void
   setCurrentTask: (task: Task | null) => void
   reorderTasks: (taskIds: string[]) => void
+  updateSettings: (updates: Partial<Settings>) => void
 }
 
 export const calculateImpactScore = (task: Task) => {
@@ -54,6 +64,11 @@ export const useFocusStore = create<FocusState>()(
       tasks: [],
       projects: [],
       currentTask: null,
+      settings: {
+        appearance: {
+          theme: 'system' as Theme
+        }
+      },
       addTask: (task) =>
         set((state) => ({
           tasks: [
@@ -115,6 +130,13 @@ export const useFocusStore = create<FocusState>()(
           tasks: taskIds
             .map((id) => state.tasks.find((task) => task.id === id))
             .filter((task): task is Task => task !== undefined),
+        })),
+      updateSettings: (updates) =>
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            ...updates,
+          },
         })),
     }),
     {

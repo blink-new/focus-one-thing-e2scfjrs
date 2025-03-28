@@ -43,14 +43,23 @@ export function ThemeProvider({
     return () => mediaQuery.removeEventListener('change', updateSystemTheme)
   }, [])
 
+  // Initialize settings if they don't exist
+  useEffect(() => {
+    if (!settings?.appearance?.theme) {
+      updateSettings({
+        appearance: { theme: 'system' }
+      })
+    }
+  }, [settings, updateSettings])
+
   // Apply theme changes
   useEffect(() => {
-    const theme = settings.appearance.theme
+    const theme = settings?.appearance?.theme || 'system'
     const isDark = theme === 'dark' || (theme === 'system' && systemTheme === 'dark')
     
     document.documentElement.classList.remove('light', 'dark')
     document.documentElement.classList.add(isDark ? 'dark' : 'light')
-  }, [settings.appearance.theme, systemTheme])
+  }, [settings?.appearance?.theme, systemTheme])
 
   const setTheme = (theme: Theme) => {
     updateSettings({
@@ -61,7 +70,7 @@ export function ThemeProvider({
   return (
     <ThemeContext.Provider
       value={{
-        theme: settings.appearance.theme,
+        theme: settings?.appearance?.theme || 'system',
         setTheme,
       }}
     >
