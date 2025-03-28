@@ -124,7 +124,7 @@ export function ProjectDialog({ project, onClose }: ProjectDialogProps) {
                 Delete
               </Button>
             ) : (
-              <div /> {/* Empty div for spacing */}
+              <div></div> /* Empty div for spacing */
             )}
             <div className="space-x-2">
               <Button type="button" variant="ghost" onClick={onClose}>
