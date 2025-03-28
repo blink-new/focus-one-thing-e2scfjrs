@@ -27,8 +27,8 @@ function ProjectItem({ project }: { project: Project }) {
           className={cn(
             "flex-1 flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
             isActive 
-              ? "bg-gray-100 text-gray-900" 
-              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              ? "bg-accent text-accent-foreground" 
+              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
           )}
         >
           <div 
@@ -63,7 +63,7 @@ export function Navigation() {
   const location = useLocation()
 
   return (
-    <nav className="w-64 bg-white border-r h-screen p-4 fixed left-0 top-0">
+    <nav className="w-64 bg-background border-r h-screen p-4 fixed left-0 top-0">
       <div className="flex flex-col h-full">
         <div className="space-y-1">
           <Link
@@ -71,8 +71,8 @@ export function Navigation() {
             className={cn(
               "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
               location.pathname === "/" 
-                ? "bg-gray-100 text-gray-900" 
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                ? "bg-accent text-accent-foreground" 
+                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             )}
           >
             <Inbox className="w-5 h-5" />
@@ -82,7 +82,7 @@ export function Navigation() {
 
         <div className="mt-8">
           <div className="flex items-center justify-between px-3 mb-2">
-            <h2 className="text-sm font-medium text-gray-500">Projects</h2>
+            <h2 className="text-sm font-medium text-muted-foreground">Projects</h2>
             <Button
               variant="ghost"
               size="icon"
@@ -110,8 +110,8 @@ export function Navigation() {
             className={cn(
               "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
               location.pathname === "/settings"
-                ? "bg-gray-100 text-gray-900"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                ? "bg-accent text-accent-foreground"
+                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             )}
           >
             <Settings className="w-5 h-5" />
