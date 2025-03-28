@@ -31,6 +31,16 @@ interface FocusStore {
   deleteProject: (projectId: string) => void
 }
 
+// Impact score calculation functions
+export const calculateImpactScore = (task: Task): number => {
+  return (task.impact * task.urgency) / task.effort
+}
+
+export const calculatePriority = (task: Task): number => {
+  const score = calculateImpactScore(task)
+  return Math.round(score * 100) / 100 // Round to 2 decimal places
+}
+
 export const useFocusStore = create<FocusStore>()(
   persist(
     (set) => ({
