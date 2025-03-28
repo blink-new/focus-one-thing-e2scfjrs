@@ -68,7 +68,7 @@ export function SortableTaskList({ tasks }: SortableTaskListProps) {
       onDragStart={({ active }) => setActiveId(active.id as string)}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
+      <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-2">
           <AnimatePresence>
             {tasks.map((task) => (
