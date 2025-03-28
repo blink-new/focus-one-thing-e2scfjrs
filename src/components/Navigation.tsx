@@ -1,124 +1,35 @@
 
-import { useState } from 'react'
+import { ListTodo, History, Settings as SettingsIcon } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
-import { 
-  Inbox, 
-  Settings,
-  Plus,
-  X,
-  MoreVertical
-} from 'lucide-react'
-import { useFocusStore, type Project } from '../lib/store'
-import { Button } from './ui/button'
-import { cn } from '../lib/utils'
-import { ProjectDialog } from './ProjectDialog'
-
-function ProjectItem({ project }: { project: Project }) {
-  const [showOptions, setShowOptions] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const location = useLocation()
-  const isActive = location.pathname === `/project/${project.id}`
-
-  return (
-    <>
-      <div className="group relative flex items-center">
-        <Link
-          to={`/project/${project.id}`}
-          className={cn(
-            "flex-1 flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
-            isActive 
-              ? "bg-gray-100 text-gray-900" 
-              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-          )}
-        >
-          <div 
-            className="w-2 h-2 rounded-full" 
-            style={{ backgroundColor: project.color }} 
-          />
-          <span>{project.name}</span>
-        </Link>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 opacity-0 group-hover:opacity-100 absolute right-1"
-          onClick={() => setShowEditDialog(true)}
-        >
-          <MoreVertical className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {showEditDialog && (
-        <ProjectDialog 
-          project={project} 
-          onClose={() => setShowEditDialog(false)} 
-        />
-      )}
-    </>
-  )
-}
 
 export function Navigation() {
-  const [showNewProject, setShowNewProject] = useState(false)
-  const projects = useFocusStore((state) => state.projects)
   const location = useLocation()
 
+  const links = [
+    { to: '/', icon: ListTodo, label: 'Tasks' },
+    { to: '/history', icon: History, label: 'History' },
+    { to: '/settings', icon: SettingsIcon, label: 'Settings' },
+  ]
+
   return (
-    <nav className="w-64 bg-white border-r h-screen p-4 fixed left-0 top-0">
-      <div className="flex flex-col h-full">
-        <div className="space-y-1">
+    <nav className="flex items-center justify-center space-x-1 bg-gray-100 p-1 rounded-lg mb-6">
+      {links.map(({ to, icon: Icon, label }) => {
+        const isActive = location.pathname === to
+        return (
           <Link
-            to="/"
-            className={cn(
-              "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
-              location.pathname === "/" 
-                ? "bg-gray-100 text-gray-900" 
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-            )}
+            key={to}
+            to={to}
+            className={`flex items-center px-4 py-2 rounded-md transition-colors
+              ${isActive
+                ? 'bg-white shadow text-gray-900'
+                : 'text-gray-500 hover:text-gray-900'
+              }`}
           >
-            <Inbox className="w-5 h-5" />
-            <span>Inbox</span>
+            <Icon className="h-5 w-5 mr-2" />
+            {label}
           </Link>
-        </div>
-
-        <div className="mt-8">
-          <div className="flex items-center justify-between px-3 mb-2">
-            <h2 className="text-sm font-medium text-gray-500">Projects</h2>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowNewProject(true)}
-              className="h-5 w-5"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          <div className="space-y-1">
-            {projects.map((project) => (
-              <ProjectItem key={project.id} project={project} />
-            ))}
-          </div>
-
-          {showNewProject && (
-            <ProjectDialog onClose={() => setShowNewProject(false)} />
-          )}
-        </div>
-
-        <div className="mt-auto pt-8 space-y-1">
-          <Link
-            to="/settings"
-            className={cn(
-              "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
-              location.pathname === "/settings"
-                ? "bg-gray-100 text-gray-900"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-            )}
-          >
-            <Settings className="w-5 h-5" />
-            <span>Settings</span>
-          </Link>
-        </div>
-      </div>
+        )
+      })}
     </nav>
   )
 }
