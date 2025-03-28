@@ -27,12 +27,10 @@ export function TaskInput({ defaultProjectId = null }: { defaultProjectId?: stri
     if (!title.trim()) return
 
     addTask({
-      id: Date.now().toString(),
       title,
       impact,
       urgency,
       effort,
-      completed: false,
       date: new Date().toISOString(),
       duration: 25 * 60,
       projectId: projectId === 'inbox' ? null : projectId,
